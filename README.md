@@ -83,9 +83,15 @@ Apply the given aerospike namespace yaml file
 
 > - ## Service
 
-> > 1. create & apply services
+> > 1. create & apply `services`
 > >
 > > - one service for internal communication
 > > - one for external communication
 
         kubectl apply -f aerospike-svc.yaml
+
+> - ## StatefulSet
+
+> > 1.  create & apply `StatefulSet` ( **make sure you read instructions first** )
+
+        kubectl apply -f aerospike-ss.yaml
