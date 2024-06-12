@@ -70,3 +70,7 @@ Apply the given aerospike namespace yaml file
         kubectl apply -f aerospike-pv.yaml
 
 > ## Storage class
+
+> > 1.  create storage-class & apply for local volume with **kubernetes.io/no-provisioner**
+
+        kubectl apply -f aerospike-sc.yaml
