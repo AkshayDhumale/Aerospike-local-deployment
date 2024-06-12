@@ -99,3 +99,10 @@ Apply the given aerospike namespace yaml file
 # 4. Single complete yaml file for aerospike deployment
 
         kubectl apply -f aerospike-complete.yaml
+
+# 5. Testing
+
+> - ## aerospike tool installation
+>   > 1.  create & deploy aerospike-tool pod
+
+        kubectl apply -f aerospike-tool.yaml
