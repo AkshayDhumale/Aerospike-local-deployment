@@ -8,8 +8,8 @@ Apply the given aerospike namespace yaml file
 
 # 2. Prerequisites
 
-> 1.  make sure when you create PVs the directory/folder must present on your machine
-> 2.  When you create a PV the deafult volumeMode is **Filesystem**. if you are using EBS storage then the it is **Block**
+> 1.  make sure when you create PVs the directory OR folder must present on your machine
+> 2.  When you create a PV the deafult volumeMode is **Filesystem**. if you are using EBS storage then it is **Block**
 
         storageClassName: aerospike-local
         accessModes: ["ReadWriteOnce"]
@@ -20,7 +20,7 @@ Apply the given aerospike namespace yaml file
 
 > 3.  Make sure you specify the correct name of Node in nodeAffinity -> values of PVs.
 
-**_kubectl get nodes_**
+> > - **RUN** **_kubectl get nodes_** and replace with -> node01
 
         nodeAffinity:
           required:
