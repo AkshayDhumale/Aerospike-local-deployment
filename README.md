@@ -9,6 +9,10 @@ Apply the given aerospike namespace yaml file
 # 2. Prerequisites
 
 > 1.  make sure when you create PVs the directory OR folder must present on your machine
+
+        local:
+          path: /opt/aerospike-0
+
 > 2.  When you create a PV the deafult volumeMode is **Filesystem**. if you are using EBS storage then it is **Block**
 
         storageClassName: aerospike-local
@@ -20,7 +24,7 @@ Apply the given aerospike namespace yaml file
 
 > 3.  Make sure you specify the correct name of Node in nodeAffinity -> values of PVs.
 
-> > - **RUN** **_kubectl get nodes_** and replace with -> node01
+> > - **RUN** --> **_kubectl get nodes_** and replace with -> node01
 
         nodeAffinity:
           required:
@@ -30,3 +34,27 @@ Apply the given aerospike namespace yaml file
                   operator: In
                   values:
                       - node01
+
+> 4. Make sure the **_path & file_** mentioned in storage-engine device must present in you machine
+
+- \_aerospike-config.yaml -> namespace store{ storage-engine device {file /opt/aero/data.dat} }
+
+**ConfigMap**
+
+        namespace store {
+          replication-factor 3
+          memory-size 1G
+          default-ttl 30d
+          nsup-period 120
+          storage-engine device {
+            file /opt/aero/data.dat
+            filesize 1G
+            write-block-size 128K
+          }
+        }
+
+**SatefulSet**
+
+        volumeMounts:
+        - name: aerospike-pd
+            mountPath: /opt/aero
