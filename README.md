@@ -103,6 +103,15 @@ Apply the given aerospike namespace yaml file
 # 5. Testing
 
 > - ## aerospike tool installation
->   > 1.  create & deploy aerospike-tool pod
+
+> > 1.  create & deploy aerospike-tool pod
 
         kubectl apply -f aerospike-tool.yaml
+
+> > 2.  Enter into aerospike tool pod
+
+        kubectl exec -it aerospike-0 -n aerospike -- bash
+
+> > 3.  connect to aerospike pod using host-ip
+
+        asadm -h aerospike-svc.aerospike
