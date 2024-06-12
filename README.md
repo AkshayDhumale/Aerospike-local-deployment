@@ -112,6 +112,6 @@ Apply the given aerospike namespace yaml file
 
         kubectl exec -it aerospike-0 -n aerospike -- bash
 
-> > 3.  connect to aerospike-pod using host-ip
+> > 3.  connect to aerospike-pod using host-ip.
 
         asadm -h aerospike-svc.aerospike
