@@ -37,7 +37,7 @@ Apply the given aerospike namespace yaml file
 
 > 4. Make sure the **_path & file_** mentioned in storage-engine device must present in you machine
 
-- \_aerospike-config.yaml -> namespace store{ storage-engine device {file /opt/aero/data.dat} }
+- aerospike-config.yaml -> namespace store{ storage-engine device {file /opt/aero/data.dat} }
 
 **ConfigMap**
 
@@ -58,3 +58,11 @@ Apply the given aerospike namespace yaml file
         volumeMounts:
         - name: aerospike-pd
             mountPath: /opt/aero
+
+# 3. apply the deployment file
+
+> 1. create a persistant volume file and mention all the PVs into that.
+>    make sure the **name** & **Path** of each PVs must be different.
+>    apply the file
+
+        kubectl apply -f aerospike-pv.yaml
