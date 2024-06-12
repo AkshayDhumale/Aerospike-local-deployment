@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aerospike-config
+  namespace: aerospike
+  labels:
+    app: aerospike-config
+    component: cm
+data:
+  aerospike.conf: |
+    service {
+      user root
+      group root
+      pidfile /var/run/aerospike/asd.pid
+      proto-fd-max 15000
+    }
+    logging {
+    # Log file must be an absolute path.
+      file /dev/null {
+        context any info
+      }
+      console {
+        context any info 
+      }
+    }
+    network {
+      service {
+        address any
+        port 3000
+      }
+      heartbeat {
+        address any
+        mode mesh
+        port 3002
+        mesh-seed-address-port aerospike-0.aerospike-headless  3002
+        mesh-seed-address-port aerospike-1.aerospike-headless  3002
+        interval 150
+        timeout 10
+      }
+      fabric {
+        address any
+        port 3001
+      }
+      info {
+        address any
+        port 3003
+      }
+    }
+    namespace store {
+      replication-factor 3
+      memory-size 1G
+      default-ttl 30d
+      nsup-period 120
+      storage-engine device {
+        file /opt/aero/data.dat
+        filesize 1G
+        write-block-size 128K
+      }
+    }
