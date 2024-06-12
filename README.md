@@ -4,4 +4,4 @@
 
 Apply the given aerospike namespace yaml file
 
-> kubectl apply -f aerospike-namespace.yaml
+    kubectl apply -f aerospike-namespace.yaml
