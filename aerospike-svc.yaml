@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: aerospike-headless
+  namespace: aerospike
+  labels:
+    app: aerospike
+    component: headless
+spec:
+  clusterIP: None
+  type: ClusterIP
+  ports:
+    - port: 3001
+      name: fabric
+    - port: 3002
+      name: mesh-heartbeat
+    - port: 3003
+      name: info
+  selector:
+    app: aerospike
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aerospike-svc
+  namespace: aerospike
+  labels:
+    app: aerospike
+    component: clusterIP
+spec:
+  ports:
+    - port: 3000
+      name: service
+  selector:
+    app: aerospike
