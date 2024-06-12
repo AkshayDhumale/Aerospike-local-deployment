@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: aerospike
+  namespace: aerospike
+  labels:
+    app: aerospike
+    component: sts
+spec:
+  replicas: 2
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: aerospike
+  serviceName: aerospike-headless
+  template:
+    metadata:
+      labels:
+        app: aerospike
+    spec:
+      containers:
+        - image: aerospike/aerospike-server:6.1.0.17
+          name: aerospike
+          volumeMounts:
+            - name: config
+              mountPath: /etc/aerospike
+            - name: aerospike-pd
+              mountPath: /opt/aero
+          ports:
+            - containerPort: 3000
+              name: service
+            - containerPort: 3001
+              name: fabric
+            - containerPort: 3002
+              name: mesh-heartbeat
+            - containerPort: 3003
+              name: info
+      volumes:
+        - name: config
+          configMap:
+            name: aerospike-config
+            items:
+              - key: aerospike.conf
+                path: aerospike.conf
+  volumeClaimTemplates:
+    - metadata:
+        name: aerospike-pd
+        labels:
+          app: aerospike
+          component: pvc
+      spec:
+        storageClassName: aerospike-local
+        accessModes: ["ReadWriteOnce"]
+        volumeMode: Filesystem
+        resources:
+          requests:
+            storage: 5Gi
