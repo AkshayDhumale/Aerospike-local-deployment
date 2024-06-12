@@ -61,8 +61,12 @@ Apply the given aerospike namespace yaml file
 
 # 3. apply the deployment file
 
-> - create a persistent volume file and mention all the PVs into that.
-> - give the right name of node in **nodeAffinity** of PV
-> - make sure the **name** & **Path** of each PVs must be unique for each PV.
+> ## persistent Volume
+
+> > 1.  create a persistent volume file and mention all the PVs into that.
+> > 2.  give the right name of node in **nodeAffinity** of PV
+> > 3.  make sure the **name** & **Path** of each PVs must be unique.
 
         kubectl apply -f aerospike-pv.yaml
+
+> ## Storage class
