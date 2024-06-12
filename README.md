@@ -95,3 +95,7 @@ Apply the given aerospike namespace yaml file
 > > 1.  create & apply `StatefulSet` ( **make sure you read instructions first** )
 
         kubectl apply -f aerospike-ss.yaml
+
+# 4. Single complete yaml file for aerospike deployment
+
+        kubectl apply -f aerospike-complete.yaml
