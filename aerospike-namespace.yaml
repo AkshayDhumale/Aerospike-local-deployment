@@ -1,0 +1,8 @@
+# create a namespace aerospike
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aerospike
+  labels:
+    app: aerospike
+    component: ns
