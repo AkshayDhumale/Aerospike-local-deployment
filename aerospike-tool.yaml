@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: aerospike-tools
+  namespace: aerospike
+spec:
+  containers:
+    - name: aql
+      image: aerospike/aerospike-tools:latest
+      command: ["sleep"]
+      args: ["infinity"]
