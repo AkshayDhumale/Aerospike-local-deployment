@@ -61,9 +61,9 @@ Apply the given aerospike namespace yaml file
 
 # 3. apply the deployment file
 
-> - ## persistent Volume
+> - ## Persistent Volume
 
-> > 1.  create a persistent volume file and mention all the PVs into that.
+> > 1.  create a `persistent volume` file and mention all the PVs into that.
 > > 2.  give the right name of node in **nodeAffinity** of PV
 > > 3.  make sure the **name** & **Path** of each PVs must be unique.
 
@@ -71,12 +71,21 @@ Apply the given aerospike namespace yaml file
 
 > - ## Storage class
 
-> > 1.  create storage-class & apply for local volume with **kubernetes.io/no-provisioner**
+> > 1.  create `storage-class` & apply for local volume with **kubernetes.io/no-provisioner**
 
         kubectl apply -f aerospike-sc.yaml
 
 > - ## ConfigMap
 
-> > 1. create & apply configMap ( **make sure you read instructions first** )
+> > 1. create & apply `configMap` ( **make sure you read instructions first** )
 
         kubectl apply -f aerospike-cm.ymal
+
+> - ## Service
+
+> > 1. create & apply services
+> >
+> > - one service for internal communication
+> > - one for external communication
+
+        kubectl apply -f aerospike-svc.yaml
