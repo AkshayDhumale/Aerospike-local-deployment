@@ -18,9 +18,9 @@ Apply the given aerospike namespace yaml file
           requests:
             storage: 5Gi
 
-> 3.  Make sure you specify the correct name in nodeAffinity of PVs.
+> 3.  Make sure you specify the correct name of Node in nodeAffinity -> values of PVs.
 
-        kubectl get nodes
+**_kubectl get nodes_**
 
         nodeAffinity:
           required:
