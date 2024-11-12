@@ -1,218 +1,218 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: aerospike
-  labels:
-    app: aerospike
-    component: ns
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: aerospike-config
-  namespace: aerospike
-  labels:
-    app: aerospike-config
-    component: cm
-data:
-  aerospike.conf: |
-    service {
-      user root
-      group root
-      pidfile /var/run/aerospike/asd.pid
-      proto-fd-max 15000
-    }
-    logging {
-    # Log file must be an absolute path.
-      file /dev/null {
-        context any info
-      }
-      console {
-        context any info 
-      }
-    }
-    network {
-      service {
-        address any
-        port 3000
-      }
-      heartbeat {
-        address any
-        mode mesh
-        port 3002
-        mesh-seed-address-port aerospike-0.aerospike-headless  3002
-        mesh-seed-address-port aerospike-1.aerospike-headless  3002
-        interval 150
-        timeout 10
-      }
-      fabric {
-        address any
-        port 3001
-      }
-      info {
-        address any
-        port 3003
-      }
-    }
-    namespace store {
-      replication-factor 3
-      memory-size 1G
-      default-ttl 30d
-      nsup-period 120
-      storage-engine device {
-        file /opt/aero/data.dat
-        filesize 1G
-        write-block-size 128K
-      }
-    }
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: aerospike
+#   labels:
+#     app: aerospike
+#     component: ns
+# ---
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: aerospike-config
+#   namespace: aerospike
+#   labels:
+#     app: aerospike-config
+#     component: cm
+# data:
+#   aerospike.conf: |
+#     service {
+#       user root
+#       group root
+#       pidfile /var/run/aerospike/asd.pid
+#       proto-fd-max 15000
+#     }
+#     logging {
+#     # Log file must be an absolute path.
+#       file /dev/null {
+#         context any info
+#       }
+#       console {
+#         context any info 
+#       }
+#     }
+#     network {
+#       service {
+#         address any
+#         port 3000
+#       }
+#       heartbeat {
+#         address any
+#         mode mesh
+#         port 3002
+#         mesh-seed-address-port aerospike-0.aerospike-headless  3002
+#         mesh-seed-address-port aerospike-1.aerospike-headless  3002
+#         interval 150
+#         timeout 10
+#       }
+#       fabric {
+#         address any
+#         port 3001
+#       }
+#       info {
+#         address any
+#         port 3003
+#       }
+#     }
+#     namespace store {
+#       replication-factor 3
+#       memory-size 1G
+#       default-ttl 30d
+#       nsup-period 120
+#       storage-engine device {
+#         file /opt/aero/data.dat
+#         filesize 1G
+#         write-block-size 128K
+#       }
+#     }
 
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: aerospike-headless
-  namespace: aerospike
-  labels:
-    app: aerospike
-    component: headless
-spec:
-  clusterIP: None
-  type: ClusterIP
-  ports:
-    - port: 3001
-      name: fabric
-    - port: 3002
-      name: mesh-heartbeat
-    - port: 3003
-      name: info
-  selector:
-    app: aerospike
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: aerospike-svc
-  namespace: aerospike
-  labels:
-    app: aerospike
-    component: clusterIP
-spec:
-  ports:
-    - port: 3000
-      name: service
-  selector:
-    app: aerospike
----
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: aerospike-local
-  labels:
-    app: aerospike
-    component: sc
-provisioner: kubernetes.io/no-provisioner
-volumeBindingMode: WaitForFirstConsumer
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: pv-aerospike-0
-spec:
-  capacity:
-    storage: 5Gi
-  volumeMode: Filesystem
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: aerospike-local
-  local:
-    path: /opt/aerospike-0
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: kubernetes.io/hostname
-              operator: In
-              values:
-                - node01
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: pv-aerospike-1
-spec:
-  capacity:
-    storage: 5Gi
-  volumeMode: Filesystem
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: aerospike-local
-  local:
-    path: /opt/aerospike-1
-  nodeAffinity:
-    required:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: kubernetes.io/hostname
-              operator: In
-              values:
-                - node01
----
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: aerospike
-  namespace: aerospike
-  labels:
-    app: aerospike
-    component: sts
-spec:
-  replicas: 2
-  podManagementPolicy: OrderedReady
-  updateStrategy:
-    type: RollingUpdate
-  selector:
-    matchLabels:
-      app: aerospike
-  serviceName: aerospike-headless
-  template:
-    metadata:
-      labels:
-        app: aerospike
-    spec:
-      containers:
-        - image: aerospike/aerospike-server:6.1.0.17
-          name: aerospike
-          volumeMounts:
-            - name: config
-              mountPath: /etc/aerospike
-            - name: aerospike-pd
-              mountPath: /opt/aero
-          ports:
-            - containerPort: 3000
-              name: service
-            - containerPort: 3001
-              name: fabric
-            - containerPort: 3002
-              name: mesh-heartbeat
-            - containerPort: 3003
-              name: info
-      volumes:
-        - name: config
-          configMap:
-            name: aerospike-config
-            items:
-              - key: aerospike.conf
-                path: aerospike.conf
-  volumeClaimTemplates:
-    - metadata:
-        name: aerospike-pd
-        labels:
-          app: aerospike
-          component: pvc
-      spec:
-        storageClassName: aerospike-local
-        accessModes: ["ReadWriteOnce"]
-        volumeMode: Filesystem
-        resources:
-          requests:
-            storage: 5Gi
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: aerospike-headless
+#   namespace: aerospike
+#   labels:
+#     app: aerospike
+#     component: headless
+# spec:
+#   clusterIP: None
+#   type: ClusterIP
+#   ports:
+#     - port: 3001
+#       name: fabric
+#     - port: 3002
+#       name: mesh-heartbeat
+#     - port: 3003
+#       name: info
+#   selector:
+#     app: aerospike
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: aerospike-svc
+#   namespace: aerospike
+#   labels:
+#     app: aerospike
+#     component: clusterIP
+# spec:
+#   ports:
+#     - port: 3000
+#       name: service
+#   selector:
+#     app: aerospike
+# ---
+# apiVersion: storage.k8s.io/v1
+# kind: StorageClass
+# metadata:
+#   name: aerospike-local
+#   labels:
+#     app: aerospike
+#     component: sc
+# provisioner: kubernetes.io/no-provisioner
+# volumeBindingMode: WaitForFirstConsumer
+# ---
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#   name: pv-aerospike-0
+# spec:
+#   capacity:
+#     storage: 5Gi
+#   volumeMode: Filesystem
+#   accessModes:
+#     - ReadWriteOnce
+#   storageClassName: aerospike-local
+#   local:
+#     path: /opt/aerospike-0
+#   nodeAffinity:
+#     required:
+#       nodeSelectorTerms:
+#         - matchExpressions:
+#             - key: kubernetes.io/hostname
+#               operator: In
+#               values:
+#                 - node01
+# ---
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#   name: pv-aerospike-1
+# spec:
+#   capacity:
+#     storage: 5Gi
+#   volumeMode: Filesystem
+#   accessModes:
+#     - ReadWriteOnce
+#   storageClassName: aerospike-local
+#   local:
+#     path: /opt/aerospike-1
+#   nodeAffinity:
+#     required:
+#       nodeSelectorTerms:
+#         - matchExpressions:
+#             - key: kubernetes.io/hostname
+#               operator: In
+#               values:
+#                 - node01
+# ---
+# apiVersion: apps/v1
+# kind: StatefulSet
+# metadata:
+#   name: aerospike
+#   namespace: aerospike
+#   labels:
+#     app: aerospike
+#     component: sts
+# spec:
+#   replicas: 2
+#   podManagementPolicy: OrderedReady
+#   updateStrategy:
+#     type: RollingUpdate
+#   selector:
+#     matchLabels:
+#       app: aerospike
+#   serviceName: aerospike-headless
+#   template:
+#     metadata:
+#       labels:
+#         app: aerospike
+#     spec:
+#       containers:
+#         - image: aerospike/aerospike-server:6.1.0.17
+#           name: aerospike
+#           volumeMounts:
+#             - name: config
+#               mountPath: /etc/aerospike
+#             - name: aerospike-pd
+#               mountPath: /opt/aero
+#           ports:
+#             - containerPort: 3000
+#               name: service
+#             - containerPort: 3001
+#               name: fabric
+#             - containerPort: 3002
+#               name: mesh-heartbeat
+#             - containerPort: 3003
+#               name: info
+#       volumes:
+#         - name: config
+#           configMap:
+#             name: aerospike-config
+#             items:
+#               - key: aerospike.conf
+#                 path: aerospike.conf
+#   volumeClaimTemplates:
+#     - metadata:
+#         name: aerospike-pd
+#         labels:
+#           app: aerospike
+#           component: pvc
+#       spec:
+#         storageClassName: aerospike-local
+#         accessModes: ["ReadWriteOnce"]
+#         volumeMode: Filesystem
+#         resources:
+#           requests:
+#             storage: 5Gi
